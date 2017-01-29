@@ -1,0 +1,17 @@
+style
+	include css/gameshow.css
+
+div
+	center
+		table(style="width:60%;height:70%;" border="1")
+			tbody
+				tr
+					-(data.categories).forEach(function(category){
+						td #{category}
+					-})	
+				-for(var i = 0; i < 5; i++){
+					tr
+						-for(var j = 0; j < data.rows; j++){
+							td #{(i + 1)* 100}
+						-}
+				-}

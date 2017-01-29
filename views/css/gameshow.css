@@ -1,0 +1,14 @@
+.center {
+    display: inline-block;
+    vertical-align: middle;
+    float: none;
+}
+
+table{
+	table-layout: fixed;
+	text-align:center;
+	color:white;
+	background-color:blue;
+	border:1;
+
+}
