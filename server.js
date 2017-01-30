@@ -20,9 +20,14 @@ var game = function(req, res){
 	res.render('game', {data:data});
 }
 
+var buzzer = function(req, res){
+	res.render('buzzer');
+}
+
 // Routes
 app.get('/', function(req, res){
 	res.redirect('/buzzer');
 });
 
+app.get('/buzzer', buzzer);
 app.get('/game', game);

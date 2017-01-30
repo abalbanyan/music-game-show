@@ -1,0 +1,16 @@
+style
+	include css/buzzer.css
+
+div.button(style="height: 41vh; width: 41vh; 	background-color: black;")
+div.button(id = "buzz")
+
+script(type='text/javascript' src='http://code.jquery.com/jquery.min.js')
+script(src="/socket.io/socket.io.js")
+script.
+	var socket = io.connect('/game');
+	console.log("Connected to socket.");
+	var team = "desu"
+	$("div#buzz").on("click",function() {
+		socket.emit("buzz", {"team": team});
+		console.log("Buzz!");
+	});	

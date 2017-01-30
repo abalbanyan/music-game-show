@@ -1,0 +1,20 @@
+body {
+	background-color: blue;
+}
+
+.button{
+	background-color: red;
+	border-radius: 50%;
+	box-shadow: inset 0 0 25px 25px rgba(0,0,0,0.5);
+	/* using vh makes it scale properly with any screen size */
+	height: 40vh;
+	width: 40vh;
+	vertical-align: middle;
+
+	/* centering */
+	margin:auto;
+	position:absolute;
+	top:0;bottom:0; /* Aligns Vertically - Remove for Horizontal Only */
+	left:0;right:0; /* Aligns Horizontally - Remove for Vertical Only  */
+
+}
