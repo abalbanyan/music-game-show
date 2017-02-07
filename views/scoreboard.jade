@@ -1,0 +1,8 @@
+h1 test
+script(src="/socket.io/socket.io.js")
+script.
+	var socket = io.connect();
+	socket.on('scoreboard-buzz', function(data){
+		console.log("Buzz from " + data.team + "!");
+	});
+

@@ -19,11 +19,9 @@ var data = {"cols": categories.length, "rows": 5, "categories":categories};
 var game = function(req, res){
 	res.render('game', {data:data});
 }
-
 var scoreboard = function(req, res){
 	res.render('scoreboard', {data:data});
 }
-
 var buzzer = function(req, res){
 	res.render('buzzer');
 }
@@ -32,7 +30,17 @@ var buzzer = function(req, res){
 app.get('/', function(req, res){
 	res.redirect('/buzzer');
 });
-
 app.get('/buzzer', buzzer);
 app.get('/game', game);
 app.get('/scoreboard', scoreboard);
+
+// socket.io stuff
+io.on('connection', function(socket){
+	socket.on('buzz', function(data){
+		io.emit('scoreboard-buzz', {"team":data.team});
+		console.log("Buzz! " + data.team);
+	});
+	socket.on('selection', function(data){
+		console.log("Choice: cell " + data.choice);
+	});
+});

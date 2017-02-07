@@ -19,11 +19,25 @@ div
 script(type='text/javascript' src='http://code.jquery.com/jquery.min.js')
 script(src="/socket.io/socket.io.js")
 script var data =  !{JSON.stringify(data)};
+script var map = new Map();
 script.
+	var socket = io();
 	for(i = 0; i < data.rows; i++){
 		for(j = 0; j < data.cols; j++){
 			$("td#cell" + i.toString() + j.toString()).on("click",function() {
-				location ="/quiz?choice=" + ($(this).attr('id')).slice(4);
+				//location ="/quiz?choice=" + ($(this).attr('id')).slice(4);
+				var num = ($(this).attr('id')).slice(4);
+				if(map.get(num) == undefined){
+					map.set(num, true);
+					var cell = document.getElementById('cell' + num);
+					cell.style.backgroundColor = 'black';
+					cell.style.color = 'black';
+					socket.emit('selection', {"choice": num});
+					console.log("Selection: ", num);
+				}
+				else{
+					console.log("Cell " + num + " already chosen.");
+				}
 			});	
 		}
 	}
