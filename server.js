@@ -20,6 +20,10 @@ var game = function(req, res){
 	res.render('game', {data:data});
 }
 
+var scoreboard = function(req, res){
+	res.render('scoreboard', {data:data});
+}
+
 var buzzer = function(req, res){
 	res.render('buzzer');
 }
@@ -31,3 +35,4 @@ app.get('/', function(req, res){
 
 app.get('/buzzer', buzzer);
 app.get('/game', game);
+app.get('/scoreboard', scoreboard);
