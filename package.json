@@ -7,11 +7,13 @@
   	"start":"node server.js"
   },
   "dependencies": {
-  	"express":"*",
+    "express":"*",
     "jquery":"*",
-  	"jade":"*",
-  	"body-parser":"*",
-    "socket.io":"^1.3.7"
+    "jade":"*",
+    "body-parser":"*",
+    "socket.io":"^1.3.7",
+    "d3":"*",
+    "epoch-charting":"*"
   },
   "author": "",
   "license": "ISC"
