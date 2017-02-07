@@ -3,6 +3,11 @@ body {
 	font-family: 'Roboto Slab', serif;
 }
 
+h1{
+	font-family: 'Roboto Slab', serif;
+	color: white;
+}
+
 .button{
 	background-color: red;
 	border-radius: 50%;
@@ -23,22 +28,10 @@ body {
 
 input[type=text]{
 	margin-bottom: 20px;
-	margin-top: 10px;
+	margin-top: 5px;
 	width: 70%;
 	padding: 20px;
-	border-radius:6px;
+	border-radius:8px;
 	border: 2px solid #7ac9b7;
 	font-size: 4vh;
-}
-textarea{
-width:100%;
-padding: 15px;
-margin-top: 10px;
-border:1px solid #7ac9b7;
-border-radius:6px;
-margin-bottom: 20px;
-resize:none;
-}
-input[type=text]:focus,textarea:focus {
-	border-color: #4697e4;
 }
