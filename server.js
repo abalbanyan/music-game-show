@@ -11,7 +11,7 @@ var server = app.listen(app.get('port'), function(){
 });
 var io = require('socket.io')(server);
 
-app.use(express.static(__dirname + '/public')); // This allows anything in /public to be served as if it were in the main directory.
+app.use(express.static(__dirname + '/node_modules')); // This allows anything in /public to be served as if it were in the main directory.
 app.set('view engine', 'jade');
 
 var categories = ["Shounen", "Shoujo", "Seinen", "Romance", "Miscellaneous"];
@@ -41,6 +41,7 @@ io.on('connection', function(socket){
 		console.log("Buzz! " + data.team);
 	});
 	socket.on('selection', function(data){
+		io.emit('scoreboard-selection', {"choice":data.choice});
 		console.log("Choice: cell " + data.choice);
 	});
 });

@@ -5,4 +5,7 @@ script.
 	socket.on('scoreboard-buzz', function(data){
 		console.log("Buzz from " + data.team + "!");
 	});
+	socket.on('scoreboard-selection', function(data){
+		console.log("Cell " + data.choice);
+	});
 

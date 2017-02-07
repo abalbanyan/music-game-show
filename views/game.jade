@@ -3,7 +3,7 @@ style
 div
 	-var badColorSelector = ["red", "grey", "green", "orange", "blue"];
 	center
-		table(style="width:60%;height:70%;" border="1")
+		table(style="width:70%;height:80%;" border="1")
 			tbody
 				tr
 					-(data.categories).forEach(function(category){
@@ -16,7 +16,8 @@ div
 								td(bgcolor= badColorSelector[j] id="cell" + j + i) #{(i + 1)* 100}
 						-}
 				-}
-script(type='text/javascript' src='http://code.jquery.com/jquery.min.js')
+//script(type='text/javascript' src='http://code.jquery.com/jquery.min.js')
+script(src="jquery/dist/jquery.min.js")
 script(src="/socket.io/socket.io.js")
 script var data =  !{JSON.stringify(data)};
 script var map = new Map();

@@ -4,6 +4,11 @@
     float: none;
 }
 
+body{
+	background-image: url(https://cdn.awwni.me/vsz3.jpg);
+	background-size: cover;
+}
+
 table{
 	table-layout: fixed;
 	text-align:center;
@@ -11,4 +16,10 @@ table{
 	background-color:black;
 	border:1;
 
+
+	/* centering */
+	margin:auto;
+	position:absolute;
+	top:0;bottom:0; /* Aligns Vertically - Remove for Horizontal Only */
+	left:0;right:0; /* Aligns Horizontally - Remove for Vertical Only  */
 }
