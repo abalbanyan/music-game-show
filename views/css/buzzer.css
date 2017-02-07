@@ -25,18 +25,17 @@ input[type=text]{
 	margin-bottom: 20px;
 	margin-top: 10px;
 	width: 50%;
-	padding: 15px;
+	padding: 20px;
 	border-radius:6px;
-	border: 1px solid #7ac9b7;
-	padding: 8px;
-
+	border: 2px solid #7ac9b7;
+	font-size: 4vh;
 }
 textarea{
 width:100%;
 padding: 15px;
 margin-top: 10px;
 border:1px solid #7ac9b7;
-border-radius:5px;
+border-radius:6px;
 margin-bottom: 20px;
 resize:none;
 }
