@@ -14,16 +14,21 @@ script var teamName = "none";
 script var input = document.getElementById('teamName');
 
 script.
+	var pressFlag = 0;	// This is used to prevent the button from being pressed several times in a row.
 	var socket = io();
 	console.log("Connected to socket.");
 	$("div#buzz").on("click",function() {
-		teamName = input.value;
-		socket.emit("buzz", {"team": teamName});
-		navigator.vibrate(1000);
-		var button = document.getElementById("buzz");
-		button.style = 	"background-color: grey";
-		setTimeout(function(){
-			button.style = "background-color: red";
-		}, 5000);
-		console.log("Buzz! " + teamName);
+		if(pressFlag == 0){
+			pressFlag = 1;
+			teamName = input.value;
+			socket.emit("buzz", {"team": teamName});
+			navigator.vibrate(1000);
+			var button = document.getElementById("buzz");
+			button.style = 	"background-color: grey";
+			setTimeout(function(){
+				button.style = "background-color: red";
+				pressFlag = 0;
+			}, 6000);
+			console.log("Buzz! " + teamName);
+		}
 	});		
