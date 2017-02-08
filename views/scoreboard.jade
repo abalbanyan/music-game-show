@@ -20,6 +20,7 @@ html
 	script(src="/socket.io/socket.io.js")
 	script var tableData =  !{JSON.stringify(data)};
 	script.
+		// TODO: Represent and tally points. (will pls)
 
 		var audio;
 		var buzzList = [];
@@ -47,10 +48,11 @@ html
 			console.log("col: " + col);
 			console.log("row: " + row);
 			audio = new Audio(tableData.songs[col][row]);
+			console.log(audio);
 			audio.play();
 		});
 		// When a buzz is received, the song is paused. 
-		// TODO: There should be some way to unpause the song if the team does not choose the correct answer.
+		// TODO: There should be some way toUpperCase unpause the song if the team does not choose the correct answer.
 		// TODO: Perhaps some sort of controller, which can be used by the host? This would have to be in the form of a seperate route. May be simpler to add buttons the webpage itself.
 		socket.on('scoreboard-buzz', function(data){
 			console.log("Buzz from " + data.team + "!");
