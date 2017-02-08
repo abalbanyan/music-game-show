@@ -1,12 +1,13 @@
 style
 	include css/buzzer.css
 
-div.button(style="height: 41vh; width: 41vh; 	background-color: black;") 
-div.button(id = "buzz")
-center
-
-	h1 Team Name:
-	input(type="text" id="teamName" placeholder="Type your team name here!" color="red")
+body
+	div.button(style="height: 41vh; width: 41vh; 	background-color: black;") 
+	div.button(id = "buzz")
+	center
+		h1 Team Name:
+		input(type="text" id="teamName" placeholder="Type your team name here!" color="red")
+		h1(id="warning_team_name")
 
 script(src="jquery/dist/jquery.min.js")
 script(src="/socket.io/socket.io.js")
@@ -14,21 +15,28 @@ script var teamName = "none";
 script var input = document.getElementById('teamName');
 
 script.
+	var warning = document.getElementById("warning_team_name");
 	var pressFlag = 0;	// This is used to prevent the button from being pressed several times in a row.
 	var socket = io();
 	console.log("Connected to socket.");
 	$("div#buzz").on("click",function() {
 		if(pressFlag == 0){
-			pressFlag = 1;
-			teamName = input.value;
-			socket.emit("buzz", {"team": teamName});
-			navigator.vibrate(1000);
-			var button = document.getElementById("buzz");
-			button.style = 	"background-color: grey";
-			setTimeout(function(){
-				button.style = "background-color: red";
-				pressFlag = 0;
-			}, 6000);
-			console.log("Buzz! " + teamName);
+			if(input.value){
+				pressFlag = 1;
+				warning.innerHTML = "";
+				teamName = input.value;
+				socket.emit("buzz", {"team": teamName});
+				navigator.vibrate(1000);
+				var button = document.getElementById("buzz");
+				button.style = 	"background-color: grey";
+				setTimeout(function(){
+					button.style = "background-color: red";
+					pressFlag = 0;
+				}, 6000);
+				console.log("Buzz! " + teamName);
+			} 
+			else{
+				warning.innerHTML = "Please input your team name!";
+			}
 		}
 	});		

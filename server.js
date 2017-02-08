@@ -14,8 +14,9 @@ var io = require('socket.io')(server);
 app.use(express.static(__dirname + '/node_modules')); // This allows anything in /node_modules to be served as if it were in the main directory.
 app.set('view engine', 'jade');
 
-var categories = ["Shounen", "Shoujo", "Sports", "Sci-Fi", "Comedy", "Favorites"];
-var data = {"cols": categories.length, "rows": 6, "categories":categories};
+
+var config = require('./config');
+var data = {"cols": config.numCategories, "rows": config.numDifficulties, "categories": config.categories, "songs": config.songs};
 var game = function(req, res){
 	res.render('game', {data:data});
 }

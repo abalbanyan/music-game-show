@@ -1,36 +1,65 @@
 // JAC Scoreboard
 
 doctype html
+style
+	include css/scoreboard.css
 html
 	head
 		//script(src="epoch-charting/dist/js/epoch.min.js")
 		script(src="jquery/dist/jquery.min.js")
 		link(rel="stylesheet", type="text/css", href="epoch-charting/dist/css/epoch.min.css")
 		title JAC OP/ED Night Scores
+	body
 		center
 			h1 Current Selection
 			h2(id = "currentSelection" style="color: red;") Nothing yet!
 			br
-			h1 Last Buzz
+			h1 Latest Buzzes
 			h2(id = "lastBuzz" style="color: red;") Nothing yet!
 
 	script(src="/socket.io/socket.io.js")
 	script var tableData =  !{JSON.stringify(data)};
 	script.
+
+		var audio;
 		var buzzList = [];
+		var refreshList = function(){
+			lastBuzz.innerHTML = "";
+			for(var i = 0; i < buzzList.length; i++){
+				lastBuzz.innerHTML += (i + 1) + ". " + buzzList[i] + "<br />";
+			}		
+		}
 		var categories = tableData.categories;
 		var currentSelection = document.getElementById("currentSelection");
 		var lastBuzz = document.getElementById("lastBuzz");
 		var socket = io.connect();
+	
+		// When a selection is made, the audio for that song will be played, based on information provided by the server, which retrieves the information from config.js.
+		socket.on('scoreboard-selection', function(data){
+			var col = data.choice.charAt(0);
+			var row = data.choice.charAt(1);
+
+			console.log("Cell " + data.choice);
+			currentSelection.innerHTML = categories[col] + ", difficulty: " + (100 + 100 * row);
+			buzzList = [];
+			refreshList();
+
+			console.log("col: " + col);
+			console.log("row: " + row);
+			audio = new Audio(tableData.songs[col][row]);
+			audio.play();
+		});
+		// When a buzz is received, the song is paused. 
+		// TODO: There should be some way to unpause the song if the team does not choose the correct answer.
+		// TODO: Perhaps some sort of controller, which can be used by the host? This would have to be in the form of a seperate route. May be simpler to add buttons the webpage itself.
 		socket.on('scoreboard-buzz', function(data){
 			console.log("Buzz from " + data.team + "!");
-			buzzList.push(data.team.toUpperCase());
-			lastBuzz.innerHTML = "";
-			for(var i = 0; i < buzzList.length; i++){
-				lastBuzz.innerHTML += buzzList[i] + " - ";
+			if(buzzList.indexOf(data.team.toUpperCase()) < 0){ // Disallow repeated buzzes - may need to remove this depending on game design.
+				buzzList.push(data.team.toUpperCase());
+				refreshList();
+				audio.pause();
 			}
 		});
-		socket.on('scoreboard-selection', function(data){
-			console.log("Cell " + data.choice);
-			currentSelection.innerHTML = categories[data.choice.charAt(0)] + ", difficulty: " + (100 + 100 * data.choice.charAt(1));
-		});
+
+
+
