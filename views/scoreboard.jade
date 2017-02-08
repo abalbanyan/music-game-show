@@ -3,18 +3,34 @@
 doctype html
 html
 	head
-		script(src="d3/d3.min.js") 
-		script(src="epoch-charting/dist/js/epoch.min.js")
+		//script(src="epoch-charting/dist/js/epoch.min.js")
 		script(src="jquery/dist/jquery.min.js")
 		link(rel="stylesheet", type="text/css", href="epoch-charting/dist/css/epoch.min.css")
 		title JAC OP/ED Night Scores
-		
+		center
+			h1 Current Selection
+			h2(id = "currentSelection" style="color: red;") Nothing yet!
+			br
+			h1 Last Buzz
+			h2(id = "lastBuzz" style="color: red;") Nothing yet!
+
 	script(src="/socket.io/socket.io.js")
+	script var tableData =  !{JSON.stringify(data)};
 	script.
+		var buzzList = [];
+		var categories = tableData.categories;
+		var currentSelection = document.getElementById("currentSelection");
+		var lastBuzz = document.getElementById("lastBuzz");
 		var socket = io.connect();
 		socket.on('scoreboard-buzz', function(data){
 			console.log("Buzz from " + data.team + "!");
+			buzzList.push(data.team.toUpperCase());
+			lastBuzz.innerHTML = "";
+			for(var i = 0; i < buzzList.length; i++){
+				lastBuzz.innerHTML += buzzList[i] + " - ";
+			}
 		});
 		socket.on('scoreboard-selection', function(data){
 			console.log("Cell " + data.choice);
+			currentSelection.innerHTML = categories[data.choice.charAt(0)] + ", difficulty: " + (100 + 100 * data.choice.charAt(1));
 		});

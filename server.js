@@ -11,7 +11,7 @@ var server = app.listen(app.get('port'), function(){
 });
 var io = require('socket.io')(server);
 
-app.use(express.static(__dirname + '/node_modules')); // This allows anything in /public to be served as if it were in the main directory.
+app.use(express.static(__dirname + '/node_modules')); // This allows anything in /node_modules to be served as if it were in the main directory.
 app.set('view engine', 'jade');
 
 var categories = ["Shounen", "Shoujo", "Sports", "Sci-Fi", "Comedy", "Favorites"];
@@ -36,12 +36,12 @@ app.get('/scoreboard', scoreboard);
 
 // socket.io stuff
 io.on('connection', function(socket){
-	socket.on('buzz', function(data){
+	socket.on('buzz', function(data){ // This buzz is received from the buzzer page.
 		io.emit('scoreboard-buzz', {"team":data.team});
 		console.log("Buzz! " + data.team);
 	});
-	socket.on('selection', function(data){
+	socket.on('selection', function(data){ // This buzz is received from the game page.
 		io.emit('scoreboard-selection', {"choice":data.choice});
-		console.log("Choice: cell " + data.choice);
+		console.log("Choice: cell " + data.choice); // data.choice is a two-digit number, first is the column (category), second is the row (points).
 	});
 });
