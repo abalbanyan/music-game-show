@@ -1,20 +1,25 @@
 // JAC Scoreboard
 
 doctype html
-html
+html(lang="en-US")
 	head
+		meta(charset="UTF-8")
+		script(src="jquery/dist/jquery.min.js")
 		script(src="d3/d3.min.js") 
 		script(src="epoch-charting/dist/js/epoch.min.js")
-		script(src="jquery/dist/jquery.min.js")
 		link(rel="stylesheet", type="text/css", href="epoch-charting/dist/css/epoch.min.css")
-		title JAC OP/ED Night Scores
+		title JAC OP/ED Night Scoreboard
 		
-	script(src="/socket.io/socket.io.js")
-	script.
-		var socket = io.connect();
-		socket.on('scoreboard-buzz', function(data){
-			console.log("Buzz from " + data.team + "!");
-		});
-		socket.on('scoreboard-selection', function(data){
-			console.log("Cell " + data.choice);
-		});
+	body
+		script.
+			var data = [
+				{ label: 'Layer 1', values: [ {x: 0, y: 0}, {x: 1, y: 1}, {x: 2, y: 2} ] },
+				{ label: 'Layer 2', values: [ {x: 0, y: 0}, {x: 1, y: 1}, {x: 2, y: 4} ] }
+			];
+		div(id="area", class="epoch category10", style="height: 200px;")
+		script.
+			var areaChartInstance = $('#area').epoch({
+			type: 'area',
+			data: data,
+			axes: ['left', 'right', 'bottom']
+			});   
