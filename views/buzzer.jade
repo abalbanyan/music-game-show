@@ -20,5 +20,10 @@ script.
 		teamName = input.value;
 		socket.emit("buzz", {"team": teamName});
 		navigator.vibrate(1000);
+		var button = document.getElementById("buzz");
+		button.style = 	"background-color: grey";
+		setTimeout(function(){
+			button.style = "background-color: red";
+		}, 5000);
 		console.log("Buzz! " + teamName);
 	});		
