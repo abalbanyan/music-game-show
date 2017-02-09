@@ -8,6 +8,13 @@ body
 		h1 Team Name:
 		input(type="text" id="teamName" placeholder="Type your team name here!" color="red")
 		h1(id="warning_team_name")
+		div.footer
+			h3(style="color: red;") Pointers: 
+			p There's no penalty for guessing wrong, but your team's buzzer will only be recognized once per song.
+			p Anyone on your team can use the buzzer, as long as they type the same team name.
+			p The song will pause the moment anyone presses the buzzer!
+			br
+			br
 
 script(src="jquery/dist/jquery.min.js")
 script(src="/socket.io/socket.io.js")
