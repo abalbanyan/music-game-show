@@ -5,8 +5,9 @@ style
 	include css/scoreboard.css
 html
 	head
-		//script(src="epoch-charting/dist/js/epoch.min.js")
 		script(src="jquery/dist/jquery.min.js")
+		script(src="d3/d3.min.js") 
+		script(src="epoch-charting/dist/js/epoch.min.js")
 		link(rel="stylesheet", type="text/css", href="epoch-charting/dist/css/epoch.min.css")
 		title JAC OP/ED Night Scores
 	body
@@ -14,16 +15,32 @@ html
 			h1 Current Selection
 			h2(id = "currentSelection" style="color: red;") Nothing yet!
 			br
+			h1 Answer
+			h2(id = "songAnswer" style="color: red;") Nothing yet!
+			br
 			h1 Latest Buzzes
-			h2(id = "lastBuzz" style="color: red;") Nothing yet!
+			h2(id = "lastBuzz" style="color: red;") Nothing yet! 
+			h1(id = "timer")
+		input(id="start" type="button" value="Start" onclick="startFunction();")
+		input(id="reset" type="button" value="Reset" onclick="resetFunction();")
+		input(id="correctAnswer" type="button" value="Correct" onclick="correctFunction();")
+		input(id="incorrectAnswer" type="button" value="Incorrect" onclick="incorrectFunction();")
+		div(id="scoreboardGraph", class="epoch category10", style="height: 400px;")
+		
+			
 
 	script(src="/socket.io/socket.io.js")
 	script var tableData =  !{JSON.stringify(data)};
 	script.
-		// TODO: Represent and tally points. (will pls)
-
+		var teams = [];
+		var teamDict = {}; // create javascript associative array
 		var audio;
+		var currentSongName = "";
+		var currentPointValue = 0;
+		var ongoingGame = false;
 		var buzzList = [];
+		var teamsBuzzedInAlready = [];
+		var currentPointValue = 0;
 		var refreshList = function(){
 			lastBuzz.innerHTML = "";
 			for(var i = 0; i < buzzList.length; i++){
@@ -34,34 +51,183 @@ html
 		var currentSelection = document.getElementById("currentSelection");
 		var lastBuzz = document.getElementById("lastBuzz");
 		var socket = io.connect();
-	
-		// When a selection is made, the audio for that song will be played, based on information provided by the server, which retrieves the information from config.js.
-		socket.on('scoreboard-selection', function(data){
-			var col = data.choice.charAt(0);
-			var row = data.choice.charAt(1);
-
-			console.log("Cell " + data.choice);
-			currentSelection.innerHTML = categories[col] + ", difficulty: " + (100 + 100 * row);
+		// Graph Variables
+		var graphData = [
+			{ 
+				label: 'Layer 1', 
+				values: [] 
+			}
+		];
+		
+		var scoreboardChart = $('#scoreboardGraph').epoch({
+			type: 'bar',
+			data: graphData,
+			axes: ['left', 'bottom'],
+			orientation: 'horizontal',
+			margins: { top: 10, right: 0, bottom: 50, left: 100} // TODO: Play with margin values?
+		});   
+		
+		// Timer implementation
+		// TODO: make a constant for roundTime
+		var roundTime=0;
+		var counter=setInterval(timer, 1000); //1000 will  run it every 1 second
+		function timer()
+		{
+		  roundTime=roundTime-1;
+		  if (roundTime <= 0)
+		  {
+		     clearInterval(counter);
+				 currentPointValue = 0;
+				 document.getElementById("timer").innerHTML= 0 + " secs";
+				 document.getElementById("songAnswer").innerHTML= currentSongName;
+				 audio.pause();
+		     return;
+		  }
+			document.getElementById("timer").innerHTML= roundTime + " secs";
+		}
+		document.getElementById("timer").innerHTML= roundTime + " secs";
+		
+		// Handlers for buttons
+		//Start function starts the game and sets up the graph
+		function startFunction() {
+			console.log("game started");
+			console.log(teams.length);
+			for (i = 0; i < teams.length; i++)
+			{
+				var newTeam = [];
+				newTeam["x"] = teams[i];
+				newTeam["y"] = 0;
+				graphData[0]["values"].push(newTeam); 
+			}
+			// update graph	
+			scoreboardChart.update(graphData);
+			console.log(graphData[0]["values"]);
+			ongoingGame = true;
+			lastBuzz.innerHTML = "Nothing yet!";
+			return 0;
+		};
+		function resetFunction() {
+			ongoingGame = false;
+			graphData[0]["values"] = [];
+			teams = [];
+			teamDict = {};
 			buzzList = [];
-			refreshList();
-
-			console.log("col: " + col);
-			console.log("row: " + row);
-			audio = new Audio(tableData.songs[col][row]);
-			console.log(audio);
-			audio.play();
-		});
-		// When a buzz is received, the song is paused. 
-		// TODO: There should be some way toUpperCase unpause the song if the team does not choose the correct answer.
-		// TODO: Perhaps some sort of controller, which can be used by the host? This would have to be in the form of a seperate route. May be simpler to add buttons the webpage itself.
-		socket.on('scoreboard-buzz', function(data){
-			console.log("Buzz from " + data.team + "!");
-			if(buzzList.indexOf(data.team.toUpperCase()) < 0){ // Disallow repeated buzzes - may need to remove this depending on game design.
-				buzzList.push(data.team.toUpperCase());
-				refreshList();
+			scoreboardChart.update(graphData);
+			currentSelection.innerHTML = "Nothing yet!";
+			lastBuzz.innerHTML = "Nothing yet!";
+			document.getElementById("timer").innerHTML = "0 secs";
+			audio.pause();
+			return 0;
+		};
+		function correctFunction() {
+			if (buzzList.length > 0)
+			{
+				teamDict[buzzList[0]] += currentPointValue;
+				for (i = 0; i < graphData[0]["values"].length; i ++)
+				{
+					if (graphData[0]["values"][i]["x"] == buzzList[0])
+					{
+						graphData[0]["values"][i]["y"] = teamDict[buzzList[0]];
+						break;
+					}
+				}
+				scoreboardChart.update(graphData);
+				currentPointValue = 0;
+				roundTime = 0;
+				document.getElementById("songAnswer").innerHTML = currentSongName;
 				audio.pause();
 			}
+			return 0;
+		};
+		
+		function incorrectFunction() {
+			if (buzzList.length > 0)
+			{
+				teamDict[buzzList[0]] -= currentPointValue;
+				for (i = 0; i < graphData[0]["values"].length; i ++)
+				{
+					if (graphData[0]["values"][i]["x"] == buzzList[0])
+					{
+						graphData[0]["values"][i]["y"] = teamDict[buzzList[0]];
+						break;
+					}
+				}
+				buzzList.shift();
+				refreshList();
+				scoreboardChart.update(graphData);
+				if (buzzList.length == 0) // if there are no more queued up buzzers then resume play
+				{
+					counter=setInterval(timer, 1000);
+					audio.play();
+				}
+			}
+			return 0;
+		};
+		
+		// When a selection is made, the audio for that song will be played, based on information provided by the server, which retrieves the information from config.js.
+		socket.on('scoreboard-selection', function(data){
+			if (ongoingGame) {
+				var col = data.choice.charAt(0);
+				var row = data.choice.charAt(1);
+				
+				teamsBuzzedInAlready = [];
+
+				console.log("Cell " + data.choice);
+				currentSelection.innerHTML = categories[col] + ", difficulty: " + (100 + 100 * row);
+				buzzList = [];
+				currentPointValue = 100 + 100 * row;
+				refreshList();
+
+				console.log("col: " + col);
+				console.log("row: " + row);
+				console.log(tableData.songs[col][row]["songUrl"]);
+				currentSongName = tableData.songs[col][row]["title"];
+				document.getElementById("songAnswer").innerHTML = "Nothing yet!";
+				console.log(tableData.songs[col][row]);
+				if (audio != null)
+				{
+					clearInterval(counter);
+					audio.pause();
+				}
+				audio = new Audio(tableData.songs[col][row]["songUrl"]);
+				console.log(audio);
+				audio.play();
+				roundTime = 90;
+				counter=setInterval(timer, 1000);
+				timer();
+			}
 		});
-
-
-
+		
+		// When a buzz is received, the song is paused. 
+		socket.on('scoreboard-buzz', function(data){
+			console.log("Buzz from " + data.team + "!");
+			// Users buzz in to register their team. Registers if not already present
+			if (ongoingGame == false && teams.indexOf(data.team.toUpperCase()) == -1)
+			{
+				teams.push(data.team.toUpperCase());
+				teamDict[data.team.toUpperCase()] = 0; // set points of team to 0
+			}
+			if (buzzList.indexOf(data.team.toUpperCase()) < 0)
+			{ // Disallow repeated buzzes - may need to remove this depending on game design.
+				if (ongoingGame == true)
+				{	
+					// check to make sure that team is registered
+					// and that they haven't buzzed in during this round
+					if (teams.indexOf(data.team.toUpperCase()) != -1 && 
+					teamsBuzzedInAlready.indexOf(data.team.toUpperCase()) == -1)
+					{
+						// TODO: Invalid team. Output error message via socket.io
+						teamsBuzzedInAlready.push(data.team.toUpperCase());
+						clearInterval(counter);
+						buzzList.push(data.team.toUpperCase());
+						refreshList();
+						audio.pause();
+					}
+				}
+				else // the game has not begun yet. Use the buzzer list to display teams
+				{
+					buzzList.push(data.team.toUpperCase());
+					refreshList();
+				}
+			}
+		});
