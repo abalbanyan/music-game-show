@@ -15,6 +15,9 @@ html
 			h1 Current Selection
 			h2(id = "currentSelection" style="color: red;") Nothing yet!
 			br
+			h1 Answer
+			h2(id = "songAnswer" style="color: red;") Nothing yet!
+			br
 			h1 Latest Buzzes
 			h2(id = "lastBuzz" style="color: red;") Nothing yet! 
 			h1(id = "timer")
@@ -29,13 +32,14 @@ html
 	script(src="/socket.io/socket.io.js")
 	script var tableData =  !{JSON.stringify(data)};
 	script.
-		// TODO: Reveal Answer. Add timer.
 		var teams = [];
 		var teamDict = {}; // create javascript associative array
 		var audio;
+		var currentSongName = "";
 		var currentPointValue = 0;
 		var ongoingGame = false;
 		var buzzList = [];
+		var teamsBuzzedInAlready = [];
 		var currentPointValue = 0;
 		var refreshList = function(){
 			lastBuzz.innerHTML = "";
@@ -64,6 +68,7 @@ html
 		});   
 		
 		// Timer implementation
+		// TODO: make a constant for roundTime
 		var roundTime=0;
 		var counter=setInterval(timer, 1000); //1000 will  run it every 1 second
 		function timer()
@@ -71,10 +76,10 @@ html
 		  roundTime=roundTime-1;
 		  if (roundTime <= 0)
 		  {
-				//TODO: Add reveal of answer
 		     clearInterval(counter);
 				 currentPointValue = 0;
 				 document.getElementById("timer").innerHTML= 0 + " secs";
+				 document.getElementById("songAnswer").innerHTML= currentSongName;
 				 audio.pause();
 		     return;
 		  }
@@ -110,10 +115,10 @@ html
 			scoreboardChart.update(graphData);
 			currentSelection.innerHTML = "Nothing yet!";
 			lastBuzz.innerHTML = "Nothing yet!";
+			document.getElementById("timer").innerHTML = "0 secs";
 			audio.pause();
 			return 0;
 		};
-		// TODO: Add reveal of correct Answer 
 		function correctFunction() {
 			if (buzzList.length > 0)
 			{
@@ -129,6 +134,7 @@ html
 				scoreboardChart.update(graphData);
 				currentPointValue = 0;
 				roundTime = 0;
+				document.getElementById("songAnswer").innerHTML = currentSongName;
 				audio.pause();
 			}
 			return 0;
@@ -149,9 +155,11 @@ html
 				buzzList.shift();
 				refreshList();
 				scoreboardChart.update(graphData);
-				
 				if (buzzList.length == 0) // if there are no more queued up buzzers then resume play
+				{
+					counter=setInterval(timer, 1000);
 					audio.play();
+				}
 			}
 			return 0;
 		};
@@ -161,6 +169,8 @@ html
 			if (ongoingGame) {
 				var col = data.choice.charAt(0);
 				var row = data.choice.charAt(1);
+				
+				teamsBuzzedInAlready = [];
 
 				console.log("Cell " + data.choice);
 				currentSelection.innerHTML = categories[col] + ", difficulty: " + (100 + 100 * row);
@@ -170,7 +180,16 @@ html
 
 				console.log("col: " + col);
 				console.log("row: " + row);
-				audio = new Audio(tableData.songs[col][row]);
+				console.log(tableData.songs[col][row]["songUrl"]);
+				currentSongName = tableData.songs[col][row]["title"];
+				document.getElementById("songAnswer").innerHTML = "Nothing yet!";
+				console.log(tableData.songs[col][row]);
+				if (audio != null)
+				{
+					clearInterval(counter);
+					audio.pause();
+				}
+				audio = new Audio(tableData.songs[col][row]["songUrl"]);
 				console.log(audio);
 				audio.play();
 				roundTime = 90;
@@ -180,7 +199,6 @@ html
 		});
 		
 		// When a buzz is received, the song is paused. 
-		// TODO: Do not allow repeat buzzes in the current song
 		socket.on('scoreboard-buzz', function(data){
 			console.log("Buzz from " + data.team + "!");
 			// Users buzz in to register their team. Registers if not already present
@@ -192,10 +210,15 @@ html
 			if (buzzList.indexOf(data.team.toUpperCase()) < 0)
 			{ // Disallow repeated buzzes - may need to remove this depending on game design.
 				if (ongoingGame == true)
-				{
-					if (teams.indexOf(data.team.toUpperCase()) != -1) // check to make sure that team is registered
+				{	
+					// check to make sure that team is registered
+					// and that they haven't buzzed in during this round
+					if (teams.indexOf(data.team.toUpperCase()) != -1 && 
+					teamsBuzzedInAlready.indexOf(data.team.toUpperCase()) == -1)
 					{
 						// TODO: Invalid team. Output error message via socket.io
+						teamsBuzzedInAlready.push(data.team.toUpperCase());
+						clearInterval(counter);
 						buzzList.push(data.team.toUpperCase());
 						refreshList();
 						audio.pause();
