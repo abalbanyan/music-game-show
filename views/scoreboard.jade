@@ -17,17 +17,19 @@ html
 			br
 			h1 Latest Buzzes
 			h2(id = "lastBuzz" style="color: red;") Nothing yet! 
+			h1(id = "timer")
 		input(id="start" type="button" value="Start" onclick="startFunction();")
 		input(id="reset" type="button" value="Reset" onclick="resetFunction();")
 		input(id="correctAnswer" type="button" value="Correct" onclick="correctFunction();")
 		input(id="incorrectAnswer" type="button" value="Incorrect" onclick="incorrectFunction();")
 		div(id="scoreboardGraph", class="epoch category10", style="height: 400px;")
+		
 			
 
 	script(src="/socket.io/socket.io.js")
 	script var tableData =  !{JSON.stringify(data)};
 	script.
-		// TODO: Represent and tally points.
+		// TODO: Reveal Answer. Add timer.
 		var teams = [];
 		var teamDict = {}; // create javascript associative array
 		var audio;
@@ -49,11 +51,7 @@ html
 		var graphData = [
 			{ 
 				label: 'Layer 1', 
-				values: [ 
-					{x: "Team 3", y: 0}, 
-					{x: "Team 2", y: 0}, 
-					{x: "Team 1", y: 0} 
-				] 
+				values: [] 
 			}
 		];
 		
@@ -61,8 +59,28 @@ html
 			type: 'bar',
 			data: graphData,
 			axes: ['left', 'bottom'],
-			orientation: 'horizontal'
+			orientation: 'horizontal',
+			margins: { top: 10, right: 0, bottom: 50, left: 100} // TODO: Play with margin values?
 		});   
+		
+		// Timer implementation
+		var roundTime=0;
+		var counter=setInterval(timer, 1000); //1000 will  run it every 1 second
+		function timer()
+		{
+		  roundTime=roundTime-1;
+		  if (roundTime <= 0)
+		  {
+				//TODO: Add reveal of answer
+		     clearInterval(counter);
+				 currentPointValue = 0;
+				 document.getElementById("timer").innerHTML= 0 + " secs";
+				 audio.pause();
+		     return;
+		  }
+			document.getElementById("timer").innerHTML= roundTime + " secs";
+		}
+		document.getElementById("timer").innerHTML= roundTime + " secs";
 		
 		// Handlers for buttons
 		//Start function starts the game and sets up the graph
@@ -80,6 +98,7 @@ html
 			scoreboardChart.update(graphData);
 			console.log(graphData[0]["values"]);
 			ongoingGame = true;
+			lastBuzz.innerHTML = "Nothing yet!";
 			return 0;
 		};
 		function resetFunction() {
@@ -88,8 +107,10 @@ html
 			teams = [];
 			teamDict = {};
 			buzzList = [];
-			refreshList();
 			scoreboardChart.update(graphData);
+			currentSelection.innerHTML = "Nothing yet!";
+			lastBuzz.innerHTML = "Nothing yet!";
+			audio.pause();
 			return 0;
 		};
 		// TODO: Add reveal of correct Answer 
@@ -107,6 +128,7 @@ html
 				}
 				scoreboardChart.update(graphData);
 				currentPointValue = 0;
+				roundTime = 0;
 				audio.pause();
 			}
 			return 0;
@@ -126,30 +148,35 @@ html
 				}
 				buzzList.shift();
 				refreshList();
+				scoreboardChart.update(graphData);
+				
 				if (buzzList.length == 0) // if there are no more queued up buzzers then resume play
 					audio.play();
-				scoreboardChart.update(graphData);
 			}
 			return 0;
 		};
 		
 		// When a selection is made, the audio for that song will be played, based on information provided by the server, which retrieves the information from config.js.
-		// TODO: Only perform when the game has started
 		socket.on('scoreboard-selection', function(data){
-			var col = data.choice.charAt(0);
-			var row = data.choice.charAt(1);
+			if (ongoingGame) {
+				var col = data.choice.charAt(0);
+				var row = data.choice.charAt(1);
 
-			console.log("Cell " + data.choice);
-			currentSelection.innerHTML = categories[col] + ", difficulty: " + (100 + 100 * row);
-			buzzList = [];
-			currentPointValue = 100 + 100 * row;
-			refreshList();
+				console.log("Cell " + data.choice);
+				currentSelection.innerHTML = categories[col] + ", difficulty: " + (100 + 100 * row);
+				buzzList = [];
+				currentPointValue = 100 + 100 * row;
+				refreshList();
 
-			console.log("col: " + col);
-			console.log("row: " + row);
-			audio = new Audio(tableData.songs[col][row]);
-			console.log(audio);
-			audio.play();
+				console.log("col: " + col);
+				console.log("row: " + row);
+				audio = new Audio(tableData.songs[col][row]);
+				console.log(audio);
+				audio.play();
+				roundTime = 90;
+				counter=setInterval(timer, 1000);
+				timer();
+			}
 		});
 		
 		// When a buzz is received, the song is paused. 
