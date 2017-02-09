@@ -5,8 +5,9 @@ style
 	include css/scoreboard.css
 html
 	head
-		//script(src="epoch-charting/dist/js/epoch.min.js")
 		script(src="jquery/dist/jquery.min.js")
+		script(src="d3/d3.min.js") 
+		script(src="epoch-charting/dist/js/epoch.min.js")
 		link(rel="stylesheet", type="text/css", href="epoch-charting/dist/css/epoch.min.css")
 		title JAC OP/ED Night Scores
 	body
@@ -15,15 +16,25 @@ html
 			h2(id = "currentSelection" style="color: red;") Nothing yet!
 			br
 			h1 Latest Buzzes
-			h2(id = "lastBuzz" style="color: red;") Nothing yet!
+			h2(id = "lastBuzz" style="color: red;") Nothing yet! 
+		input(id="start" type="button" value="Start" onclick="startFunction();")
+		input(id="reset" type="button" value="Reset" onclick="resetFunction();")
+		input(id="correctAnswer" type="button" value="Correct" onclick="correctFunction();")
+		input(id="incorrectAnswer" type="button" value="Incorrect" onclick="incorrectFunction();")
+		div(id="scoreboardGraph", class="epoch category10", style="height: 400px;")
+			
 
 	script(src="/socket.io/socket.io.js")
 	script var tableData =  !{JSON.stringify(data)};
 	script.
-		// TODO: Represent and tally points. (will pls)
-
+		// TODO: Represent and tally points.
+		var teams = [];
+		var teamDict = {}; // create javascript associative array
 		var audio;
+		var currentPointValue = 0;
+		var ongoingGame = false;
 		var buzzList = [];
+		var currentPointValue = 0;
 		var refreshList = function(){
 			lastBuzz.innerHTML = "";
 			for(var i = 0; i < buzzList.length; i++){
@@ -34,7 +45,70 @@ html
 		var currentSelection = document.getElementById("currentSelection");
 		var lastBuzz = document.getElementById("lastBuzz");
 		var socket = io.connect();
-	
+		// Graph Variables
+		var graphData = [
+			{ 
+				label: 'Layer 1', 
+				values: [ 
+					{x: "Team 3", y: 0}, 
+					{x: "Team 2", y: 0}, 
+					{x: "Team 1", y: 0} 
+				] 
+			}
+		];
+		
+		var scoreboardChart = $('#scoreboardGraph').epoch({
+			type: 'bar',
+			data: graphData,
+			axes: ['left', 'bottom'],
+			orientation: 'horizontal'
+		});   
+		
+		// Handlers for buttons
+		//Start function starts the game and sets up the graph
+		function startFunction() {
+			console.log("game started");
+			console.log(teams.length);
+			for (i = 0; i < teams.length; i++)
+			{
+				var newTeam = [];
+				newTeam["x"] = teams[i];
+				newTeam["y"] = 0;
+				graphData[0]["values"].push(newTeam); 
+			}
+			// update graph	
+			scoreboardChart.update(graphData);
+			console.log(graphData[0]["values"]);
+			ongoingGame = true;
+			return 0;
+		};
+		function resetFunction() {
+			ongoingGame = false;
+			return 0;
+		};
+		function correctFunction() {
+			if (buzzList.length > 0)
+			{
+				teamDict[buzzList[0]] += currentPointValue;
+				for (i = 0; i < graphData[0]["values"].length; i ++)
+				{
+					if (graphData[0]["values"][i]["x"] == buzzList[0])
+					{
+						graphData[0]["values"][i]["y"] = teamDict[buzzList[0]];
+						break;
+					}
+				}
+				scoreboardChart.update(graphData);
+				currentPointValue = 0;
+				audio.pause();
+			}
+			return 0;
+		};
+		// TODO: erase the top buzzList value
+		function incorrectFunction() {
+			return 0;
+		};
+		
 		// When a selection is made, the audio for that song will be played, based on information provided by the server, which retrieves the information from config.js.
 		socket.on('scoreboard-selection', function(data){
 			var col = data.choice.charAt(0);
@@ -43,6 +117,7 @@ html
 			console.log("Cell " + data.choice);
 			currentSelection.innerHTML = categories[col] + ", difficulty: " + (100 + 100 * row);
 			buzzList = [];
+			currentPointValue = 100 + 100 * row;
 			refreshList();
 
 			console.log("col: " + col);
@@ -56,12 +131,16 @@ html
 		// TODO: Perhaps some sort of controller, which can be used by the host? This would have to be in the form of a seperate route. May be simpler to add buttons the webpage itself.
 		socket.on('scoreboard-buzz', function(data){
 			console.log("Buzz from " + data.team + "!");
+			//Users buzz in to register their team. Registers if not already present
+			if (ongoingGame == false && teams.indexOf(data.team.toUpperCase()) == -1)
+			{
+				teams.push(data.team.toUpperCase());
+				teamDict[data.team.toUpperCase()] = 0; // set points of team to 0
+			}
+			// TODO: Make sure that people can't spam our buzzer with unregistered teams
 			if(buzzList.indexOf(data.team.toUpperCase()) < 0){ // Disallow repeated buzzes - may need to remove this depending on game design.
 				buzzList.push(data.team.toUpperCase());
 				refreshList();
 				audio.pause();
 			}
 		});
-
-
-
