@@ -84,8 +84,15 @@ html
 		};
 		function resetFunction() {
 			ongoingGame = false;
+			graphData[0]["values"] = [];
+			teams = [];
+			teamDict = {};
+			buzzList = [];
+			refreshList();
+			scoreboardChart.update(graphData);
 			return 0;
 		};
+		// TODO: Add reveal of correct Answer 
 		function correctFunction() {
 			if (buzzList.length > 0)
 			{
@@ -104,12 +111,30 @@ html
 			}
 			return 0;
 		};
-		// TODO: erase the top buzzList value
+		
 		function incorrectFunction() {
+			if (buzzList.length > 0)
+			{
+				teamDict[buzzList[0]] -= currentPointValue;
+				for (i = 0; i < graphData[0]["values"].length; i ++)
+				{
+					if (graphData[0]["values"][i]["x"] == buzzList[0])
+					{
+						graphData[0]["values"][i]["y"] = teamDict[buzzList[0]];
+						break;
+					}
+				}
+				buzzList.shift();
+				refreshList();
+				if (buzzList.length == 0) // if there are no more queued up buzzers then resume play
+					audio.play();
+				scoreboardChart.update(graphData);
+			}
 			return 0;
 		};
 		
 		// When a selection is made, the audio for that song will be played, based on information provided by the server, which retrieves the information from config.js.
+		// TODO: Only perform when the game has started
 		socket.on('scoreboard-selection', function(data){
 			var col = data.choice.charAt(0);
 			var row = data.choice.charAt(1);
@@ -126,21 +151,33 @@ html
 			console.log(audio);
 			audio.play();
 		});
+		
 		// When a buzz is received, the song is paused. 
-		// TODO: There should be some way toUpperCase unpause the song if the team does not choose the correct answer.
-		// TODO: Perhaps some sort of controller, which can be used by the host? This would have to be in the form of a seperate route. May be simpler to add buttons the webpage itself.
+		// TODO: Do not allow repeat buzzes in the current song
 		socket.on('scoreboard-buzz', function(data){
 			console.log("Buzz from " + data.team + "!");
-			//Users buzz in to register their team. Registers if not already present
+			// Users buzz in to register their team. Registers if not already present
 			if (ongoingGame == false && teams.indexOf(data.team.toUpperCase()) == -1)
 			{
 				teams.push(data.team.toUpperCase());
 				teamDict[data.team.toUpperCase()] = 0; // set points of team to 0
 			}
-			// TODO: Make sure that people can't spam our buzzer with unregistered teams
-			if(buzzList.indexOf(data.team.toUpperCase()) < 0){ // Disallow repeated buzzes - may need to remove this depending on game design.
-				buzzList.push(data.team.toUpperCase());
-				refreshList();
-				audio.pause();
+			if (buzzList.indexOf(data.team.toUpperCase()) < 0)
+			{ // Disallow repeated buzzes - may need to remove this depending on game design.
+				if (ongoingGame == true)
+				{
+					if (teams.indexOf(data.team.toUpperCase()) != -1) // check to make sure that team is registered
+					{
+						// TODO: Invalid team. Output error message via socket.io
+						buzzList.push(data.team.toUpperCase());
+						refreshList();
+						audio.pause();
+					}
+				}
+				else // the game has not begun yet. Use the buzzer list to display teams
+				{
+					buzzList.push(data.team.toUpperCase());
+					refreshList();
+				}
 			}
 		});
