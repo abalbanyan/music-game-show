@@ -2,3 +2,18 @@ body {
 		background-color: grey;
 		font-family: 'Roboto Slab', serif;
 }
+
+.leftColumn{
+	float:left;
+	width:33%;
+}	
+
+.rightColumn{
+	float:right;
+	width:33%;
+}
+
+.middleColumn{
+	margin: 0 auto;
+	width:33%;
+}
