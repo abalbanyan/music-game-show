@@ -143,15 +143,6 @@ html
 		function incorrectFunction() {
 			if (buzzList.length > 0)
 			{
-				teamDict[buzzList[0]] -= currentPointValue;
-				for (i = 0; i < graphData[0]["values"].length; i ++)
-				{
-					if (graphData[0]["values"][i]["x"] == buzzList[0])
-					{
-						graphData[0]["values"][i]["y"] = teamDict[buzzList[0]];
-						break;
-					}
-				}
 				buzzList.shift();
 				refreshList();
 				scoreboardChart.update(graphData);
