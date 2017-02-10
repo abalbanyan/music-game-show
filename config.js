@@ -73,7 +73,7 @@ config.songs =
 	new Song("http://openings.moe/video/Opening2-FateStayNightUBW.webm",  "Fate/Stay Night UBW OP2"),
 	new Song("http://openings.moe/video/Opening1a-BokuDakeGaInaiMachi.webm",  "Erased OP1"),
 	new Song("http://openings.moe/video/Opening1-SpiceAndWolf.webm",  "Spice and Wolf OP1"),
-	new Song("", "Monogatari")
+	new Song("http://openings.moe/?video=Opening7-MonogatariSeriesSecondSeason", "Hanamonogatari OP")
 	]
 ];
 

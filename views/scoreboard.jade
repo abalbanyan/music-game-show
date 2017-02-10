@@ -31,13 +31,20 @@ html
 			div(id="scoreboardDiagnostics_id", class="scoreboardDiagnostics_class")
 				p(id="currentSelection") Category: Nothing yet!
 				p(id="songAnswer") Answer: Nothing yet!
-				
-		div(id="scoreboardGraph", class="epoch category10")
+				p(id="timer") Round Time: 0 secs
+		div(id="scoreboardControls_id", class="scoreboardControls_class")
+			input(id="start" type="button" value="Start" onclick="startFunction();")
+			input(id="reset" type="button" value="Reset" onclick="resetFunction();")
+			input(id="correctAnswer" type="button" value="Correct" onclick="correctFunction();")
+			input(id="incorrectAnswer" type="button" value="Incorrect" onclick="incorrectFunction();")
+			input(id="pauseButton" type="button" value="Pause/Play" onclick="pauseFunction();")
 		
+	div(id="scoreboardGraph", class="epoch category10")
 
 	script(src="/socket.io/socket.io.js")
 	script var tableData =  !{JSON.stringify(data)};
 	script.
+		var isPaused = 0;
 		var teams = [];
 		var teamDict = {}; // create javascript associative array
 		var audio;
@@ -88,12 +95,10 @@ html
 				 document.getElementById("timer").innerHTML= 0;
 				 if (ongoingGame)
 				 	document.getElementById("songAnswer").innerHTML= "Answer: " + currentSongName;
-				 audio.pause();
+				 if(audio!= undefined) audio.pause();
 		     return;
 		  }
 			document.getElementById("timer").innerHTML= roundTime;
-		}
-		document.getElementById("timer").innerHTML= roundTime;
 		
 		// Handlers for buttons
 		//Start function starts the game and sets up the graph
@@ -165,6 +170,20 @@ html
 			return 0;
 		};
 		
+		function pauseFunction(){
+			if(isPaused){
+				audio.play();
+				counter=setInterval(timer, 1000);
+				isPaused = 0;
+			}
+			else{
+				clearInterval(counter);
+				audio.pause();
+				isPaused = 1;
+			}
+
+		}
+
 		// When a selection is made, the audio for that song will be played, based on information provided by the server, which retrieves the information from config.js.
 		socket.on('scoreboard-selection', function(data){
 			if (ongoingGame) {
@@ -194,6 +213,7 @@ html
 				console.log(audio);
 				audio.play();
 				roundTime = defaultTime;
+
 				counter=setInterval(timer, 1000);
 				timer();
 			}
@@ -222,7 +242,8 @@ html
 						clearInterval(counter);
 						buzzList.push(data.team.toUpperCase());
 						refreshList();
-						audio.pause();
+						if(audio != undefined)
+							audio.pause();
 					}
 				}
 				else // the game has not begun yet. Use the buzzer list to display teams
