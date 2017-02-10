@@ -26,9 +26,9 @@ html
 			input(id="reset" type="button" value="Reset" onclick="resetFunction();")
 			input(id="correctAnswer" type="button" value="Correct" onclick="correctFunction();")
 			input(id="incorrectAnswer" type="button" value="Incorrect" onclick="incorrectFunction();")
-      input(id="pauseButton" type="button" value="Pause/Play" onclick="pauseFunction();")
+			input(id="pauseButton" type="button" value="Pause/Play" onclick="pauseFunction();")
 		
-    div(id="scoreboardGraph", class="epoch category10")
+	div(id="scoreboardGraph", class="epoch category10")
 
 			
 
@@ -78,19 +78,19 @@ html
 		var counter=setInterval(timer, 1000); //1000 will  run it every 1 second
 		function timer()
 		{
-		  roundTime=roundTime-1;
-		  if (roundTime <= 0)
-		  {
-		     clearInterval(counter);
-				 currentPointValue = 0;
+			roundTime=roundTime-1;
+			if (roundTime <= 0)
+			{
+				clearInterval(counter);
+					currentPointValue = 0;
 
-				 document.getElementById("timer").innerHTML= "Round Time: " + 0 + " secs";
-				 if (ongoingGame)
-				 	document.getElementById("songAnswer").innerHTML= "Answer: " + currentSongName;
-				 if(audio != undefined)
-          audio.pause();
-		     return;
-		  }
+					document.getElementById("timer").innerHTML= "Round Time: " + 0 + " secs";
+					if (ongoingGame)
+					document.getElementById("songAnswer").innerHTML= "Answer: " + currentSongName;
+					if(audio != undefined)
+					  	audio.pause();
+					return;
+			}
 			document.getElementById("timer").innerHTML= "Round Time: " + roundTime + " secs";
 		}
 		document.getElementById("timer").innerHTML= "Round Time: " + roundTime + " secs";
