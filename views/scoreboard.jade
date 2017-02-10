@@ -37,6 +37,7 @@ html
 			input(id="correctAnswer" type="button" value="Correct" onclick="correctFunction();")
 			input(id="incorrectAnswer" type="button" value="Incorrect" onclick="incorrectFunction();")
 			input(id="pauseButton" type="button" value="Pause/Play" onclick="pauseFunction();")
+			input(id="retryButton" type="button" value="Retry" onclick="retryFunction();")
 		
 	div(id="scoreboardGraph", class="epoch category10")
 
@@ -182,6 +183,10 @@ html
 			}
 
 		};
+
+		function retryFunction(){
+			teamsBuzzedInAlready = [];
+		}
 
 		// When a selection is made, the audio for that song will be played, based on information provided by the server, which retrieves the information from config.js.
 		socket.on('scoreboard-selection', function(data){
