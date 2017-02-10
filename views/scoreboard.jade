@@ -31,7 +31,6 @@ html
 			div(id="scoreboardDiagnostics_id", class="scoreboardDiagnostics_class")
 				p(id="currentSelection") Category: Nothing yet!
 				p(id="songAnswer") Answer: Nothing yet!
-				p(id="timer") Round Time: 0 secs
 		div(id="scoreboardControls_id", class="scoreboardControls_class")
 			input(id="start" type="button" value="Start" onclick="startFunction();")
 			input(id="reset" type="button" value="Reset" onclick="resetFunction();")
@@ -85,21 +84,21 @@ html
 		var roundTime=0;
 		var defaultTime = 45;
 		var counter=setInterval(timer, 1000); //1000 will  run it every 1 second
-		function timer()
-		{
-		  roundTime=roundTime-1;
-		  if (roundTime <= 0)
-		  {
-		     clearInterval(counter);
-				 currentPointValue = 0;
-				 document.getElementById("timer").innerHTML= 0;
-				 if (ongoingGame)
-				 	document.getElementById("songAnswer").innerHTML= "Answer: " + currentSongName;
-				 if(audio!= undefined) audio.pause();
-		     return;
-		  }
+		function timer(){
+			roundTime=roundTime-1;
+			if (roundTime <= 0)
+			{
+				clearInterval(counter);
+				currentPointValue = 0;
+				document.getElementById("timer").innerHTML= 0;
+				if (ongoingGame)
+					document.getElementById("songAnswer").innerHTML= "Answer: " + currentSongName;
+				if(audio!= undefined) 
+					audio.pause();
+				return;
+			}
 			document.getElementById("timer").innerHTML= roundTime;
-		
+		};
 		// Handlers for buttons
 		//Start function starts the game and sets up the graph
 		function startFunction() {
@@ -182,7 +181,7 @@ html
 				isPaused = 1;
 			}
 
-		}
+		};
 
 		// When a selection is made, the audio for that song will be played, based on information provided by the server, which retrieves the information from config.js.
 		socket.on('scoreboard-selection', function(data){
