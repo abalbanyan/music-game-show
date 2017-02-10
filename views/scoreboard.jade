@@ -12,9 +12,20 @@ html
 		link(rel="stylesheet", type="text/css", href="epoch-charting/dist/css/epoch.min.css")
 		title JAC OP/ED Night Scoreboard
 	body
-		div(id="buzzer_id", class="buzzer_class")
-			h1 Latest Buzzes:
-			h2(id = "lastBuzz") Nothing yet! 
+		div(id="scoreboardVert_id", class="scoreboardVert_class")
+			div(id="buzzer_id", class="buzzer_class")
+				h1 Latest Buzzes:
+				h2(id = "lastBuzz") Nothing yet! 
+			div(id="timeDisplay_id", class="timeDisplay_class")
+				h1 Round Time:
+				p(id="timer", style="color: red;") 0
+				p sec.
+			div(id="scoreboardControls_id", class="scoreboardControls_class")
+				input(id="start" type="button" value="Start" onclick="startFunction();")
+				input(id="reset" type="button" value="Reset" onclick="resetFunction();")
+				input(id="correctAnswer" type="button" value="Correct" onclick="correctFunction();")
+				input(id="incorrectAnswer" type="button" value="Incorrect" onclick="incorrectFunction();")
+				
 		div(id="scoreboardTop_id", class="scoreboardTop_class")
 			div(id="header_id", class="header_class")
 			div(id="scoreboardDiagnostics_id", class="scoreboardDiagnostics_class")
@@ -29,8 +40,6 @@ html
 			input(id="pauseButton" type="button" value="Pause/Play" onclick="pauseFunction();")
 		
 	div(id="scoreboardGraph", class="epoch category10")
-
-			
 
 	script(src="/socket.io/socket.io.js")
 	script var tableData =  !{JSON.stringify(data)};
@@ -78,22 +87,18 @@ html
 		var counter=setInterval(timer, 1000); //1000 will  run it every 1 second
 		function timer()
 		{
-			roundTime=roundTime-1;
-			if (roundTime <= 0)
-			{
-				clearInterval(counter);
-					currentPointValue = 0;
-
-					document.getElementById("timer").innerHTML= "Round Time: " + 0 + " secs";
-					if (ongoingGame)
-					document.getElementById("songAnswer").innerHTML= "Answer: " + currentSongName;
-					if(audio != undefined)
-					  	audio.pause();
-					return;
-			}
-			document.getElementById("timer").innerHTML= "Round Time: " + roundTime + " secs";
-		}
-		document.getElementById("timer").innerHTML= "Round Time: " + roundTime + " secs";
+		  roundTime=roundTime-1;
+		  if (roundTime <= 0)
+		  {
+		     clearInterval(counter);
+				 currentPointValue = 0;
+				 document.getElementById("timer").innerHTML= 0;
+				 if (ongoingGame)
+				 	document.getElementById("songAnswer").innerHTML= "Answer: " + currentSongName;
+				 if(audio!= undefined) audio.pause();
+		     return;
+		  }
+			document.getElementById("timer").innerHTML= roundTime;
 		
 		// Handlers for buttons
 		//Start function starts the game and sets up the graph
@@ -125,7 +130,7 @@ html
 			lastBuzz.innerHTML = "Nothing yet!";
 			clearInterval(counter);
 			roundTime = 0;
-			document.getElementById("timer").innerHTML = "Round Time: 0 secs";
+			document.getElementById("timer").innerHTML = "0";
 			audio.pause();
 			return 0;
 		};
