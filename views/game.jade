@@ -16,12 +16,20 @@ div
 								td(bgcolor= badColorSelector[j] id="cell" + j + i) #{(i + 1)* 100}
 						-}
 				-}
-//script(type='text/javascript' src='http://code.jquery.com/jquery.min.js')
+
+		br
+		input(id="stop" type="button" value="stop" onclick="stopButton();")
+
 script(src="jquery/dist/jquery.min.js")
 script(src="/socket.io/socket.io.js")
 script var data =  !{JSON.stringify(data)};
 script var map = new Map();
 script.
+	var stop = 0;
+	var stopButton = function(){
+		stop = stop? 0:1;
+	}
+
 	var socket = io();
 	for(i = 0; i < data.rows; i++){
 		for(j = 0; j < data.cols; j++){
@@ -33,7 +41,8 @@ script.
 					var cell = document.getElementById('cell' + num);
 					cell.style.backgroundColor = 'black';
 					cell.style.color = 'black';
-					socket.emit('selection', {"choice": num});
+					if(!stop) 
+						socket.emit('selection', {"choice": num});
 					console.log("Selection: ", num);
 				}
 				else{
