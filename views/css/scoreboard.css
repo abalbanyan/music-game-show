@@ -1,19 +1,106 @@
+*,
+*::before,
+*::after {
+    -webkit-box-sizing: border-box;
+       -moz-box-sizing: border-box;
+            box-sizing: border-box;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+	text-rendering: optimizeLegibility;
+	letter-spacing: 0.04em;
+}
+html {
+	height: 100%;
+	width: 100%;
+}
+/* TODO: Finish up borders */
 body {
-		background-color: grey;
-		font-family: 'Roboto Slab', serif;
+		background-image: url("https://pomf.cat/img/bg.png");
+		background-color: gray;
+		font-family: 'Fira Sans', sans-serif;
+		color: #333;
+		height: 100%;
+		width: 100%;
 }
 
-.leftColumn{
-	float:left;
-	width:33%;
-}	
-
-.rightColumn{
-	float:right;
-	width:33%;
+.buzzer_class {
+	float: left;
+	border: 2.10px ridge rgba(0, 0, 0, 0.3);
+	width: 20%;
+	height: 85%;
+	padding: 0.75% 0.75%;
 }
 
-.middleColumn{
-	margin: 0 auto;
-	width:33%;
+.buzzer_class h1 {
+	font-size: 32px;
+	font-size: 2.3vw;
+	font-weight: bold;
+	margin-bottom: 1%;
+}
+
+.buzzer_class h2 {
+	font-size: 24px;
+	font-size: 2.0vw;
+	font-weight: normal;
+	line-height: 1.45;
+	color: #373D3F;
+}
+
+.scoreboardTop_class {
+	float: right;
+	width: 80%;
+	height: 24%;
+	overflow: auto;
+}
+
+.scoreboardDiagnostics_class {
+	float: right;
+	border: 2.00px ridge rgba(0, 0, 0, 0.3);
+	padding: 1.05% 1%;
+	line-height: 1.45;
+	width: 50%;
+	height: 100%;
+}
+
+.scoreboardDiagnostics_class p {
+	font-size: 20px;
+	font-size: 2.3vw;
+	font-weight: bold;
+}
+
+.header_class {
+	float: left;
+	border: 2.00px ridge rgba(0, 0, 0, 0.3);
+	width: 50%;
+	height: 100%;
+	background-image: url("https://a.pomf.cat/olafts.png");
+	background-size: contain;
+	background-repeat: no-repeat;
+	background: rgba(0,0,0,0,0.3);
+}
+
+#scoreboardGraph {
+	float: right;
+	border: 2.00px ridge rgba(0, 0, 0, 0.3);
+	width: 80%;
+	height: 76%;
+	position: absolute;
+	top: 24%;
+	left: 20%;
+}
+
+.scoreboardControls_class {
+	float: left;
+	border: 2.00px ridge rgba(0, 0, 0, 0.3);
+	position: absolute;
+	top: 85%;
+	width: 20%;
+}
+
+.boardButton {
+	margin: 5px;
+	padding: 5px;
 }

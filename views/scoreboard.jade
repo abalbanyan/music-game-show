@@ -8,36 +8,28 @@ html
 		script(src="jquery/dist/jquery.min.js")
 		script(src="d3/d3.min.js") 
 		script(src="epoch-charting/dist/js/epoch.min.js")
+		link(href="https://fonts.googleapis.com/css?family=Fira+Sans" rel="stylesheet")
 		link(rel="stylesheet", type="text/css", href="epoch-charting/dist/css/epoch.min.css")
-		title JAC OP/ED Night Scores
+		title JAC OP/ED Night Scoreboard
 	body
-		center
-			div.leftColumn
-				h1 Current Selection
-				h2(id = "currentSelection" style="color: red;") Nothing yet!
-				br
-				
-			div.rightColumn
-				h1 Latest Buzzes
-				h2(id = "lastBuzz" style="color: red;") Nothing yet! 
-				br
-			div.middleColumn
-				h1 Time Left:
-				h2(id = "timer" style="color: red;")
-				br
-				h1 ANSWER
-				h2(id = "songAnswer" style="color: red;") Nothing yet!
-				br
-
-		div(id="scoreboardGraph", class="epoch category10", style="height: 400px;")
-
-		center
+		div(id="buzzer_id", class="buzzer_class")
+			h1 Latest Buzzes:
+			h2(id = "lastBuzz") Nothing yet! 
+		div(id="scoreboardTop_id", class="scoreboardTop_class")
+			div(id="header_id", class="header_class")
+			div(id="scoreboardDiagnostics_id", class="scoreboardDiagnostics_class")
+				p(id="currentSelection") Category: Nothing yet!
+				p(id="songAnswer") Answer: Nothing yet!
+				p(id="timer") Round Time: 0 secs
+		div(id="scoreboardControls_id", class="scoreboardControls_class")
 			input(id="start" type="button" value="Start" onclick="startFunction();")
 			input(id="reset" type="button" value="Reset" onclick="resetFunction();")
 			input(id="correctAnswer" type="button" value="Correct" onclick="correctFunction();")
 			input(id="incorrectAnswer" type="button" value="Incorrect" onclick="incorrectFunction();")
-			input(id="pauseButton" type="button" value="Pause/Play" onclick="pauseFunction();")
+      input(id="pauseButton" type="button" value="Pause/Play" onclick="pauseFunction();")
 		
+    div(id="scoreboardGraph", class="epoch category10")
+
 			
 
 	script(src="/socket.io/socket.io.js")
@@ -63,6 +55,7 @@ html
 		var currentSelection = document.getElementById("currentSelection");
 		var lastBuzz = document.getElementById("lastBuzz");
 		var socket = io.connect();
+		
 		// Graph Variables
 		var graphData = [
 			{ 
@@ -76,12 +69,12 @@ html
 			data: graphData,
 			axes: ['left', 'bottom'],
 			orientation: 'horizontal',
-			margins: { top: 10, right: 0, bottom: 50, left: 100} // TODO: Play with margin values?
+			margins: { top: 10, right: 50, bottom: 50, left: 100} // TODO: Play with margin values?
 		});   
 		
 		// Timer implementation
-		// TODO: make a constant for roundTime
 		var roundTime=0;
+		var defaultTime = 45;
 		var counter=setInterval(timer, 1000); //1000 will  run it every 1 second
 		function timer()
 		{
@@ -90,15 +83,17 @@ html
 		  {
 		     clearInterval(counter);
 				 currentPointValue = 0;
-				 document.getElementById("timer").innerHTML= 0 + " secs";
-				 document.getElementById("songAnswer").innerHTML= currentSongName;
+
+				 document.getElementById("timer").innerHTML= "Round Time: " + 0 + " secs";
+				 if (ongoingGame)
+				 	document.getElementById("songAnswer").innerHTML= "Answer: " + currentSongName;
 				 if(audio != undefined)
-					 audio.pause();
+          audio.pause();
 		     return;
 		  }
-			document.getElementById("timer").innerHTML= roundTime + " secs";
+			document.getElementById("timer").innerHTML= "Round Time: " + roundTime + " secs";
 		}
-		document.getElementById("timer").innerHTML= roundTime + " secs";
+		document.getElementById("timer").innerHTML= "Round Time: " + roundTime + " secs";
 		
 		// Handlers for buttons
 		//Start function starts the game and sets up the graph
@@ -126,9 +121,11 @@ html
 			teamDict = {};
 			buzzList = [];
 			scoreboardChart.update(graphData);
-			currentSelection.innerHTML = "Nothing yet!";
+			currentSelection.innerHTML = "Category: Nothing yet!";
 			lastBuzz.innerHTML = "Nothing yet!";
-			document.getElementById("timer").innerHTML = "0 secs";
+			clearInterval(counter);
+			roundTime = 0;
+			document.getElementById("timer").innerHTML = "Round Time: 0 secs";
 			audio.pause();
 			return 0;
 		};
@@ -147,7 +144,7 @@ html
 				scoreboardChart.update(graphData);
 				currentPointValue = 0;
 				roundTime = 0;
-				document.getElementById("songAnswer").innerHTML = currentSongName;
+				document.getElementById("songAnswer").innerHTML = "Answer: " + currentSongName;
 				audio.pause();
 			}
 			return 0;
@@ -191,7 +188,7 @@ html
 				teamsBuzzedInAlready = [];
 
 				console.log("Cell " + data.choice);
-				currentSelection.innerHTML = categories[col] + ", difficulty: " + (100 + 100 * row);
+				currentSelection.innerHTML = "Category: " + categories[col] + ", difficulty: " + (100 + 100 * row);
 				buzzList = [];
 				currentPointValue = 100 + 100 * row;
 				refreshList();
@@ -200,7 +197,7 @@ html
 				console.log("row: " + row);
 				console.log(tableData.songs[col][row]["songUrl"]);
 				currentSongName = tableData.songs[col][row]["title"];
-				document.getElementById("songAnswer").innerHTML = "Nothing yet!";
+				document.getElementById("songAnswer").innerHTML = "Answer: Nothing yet!";
 				console.log(tableData.songs[col][row]);
 				if (audio != null)
 				{
@@ -210,7 +207,8 @@ html
 				audio = new Audio(tableData.songs[col][row]["songUrl"]);
 				console.log(audio);
 				audio.play();
-				roundTime = 45;
+				roundTime = defaultTime;
+
 				counter=setInterval(timer, 1000);
 				timer();
 			}
