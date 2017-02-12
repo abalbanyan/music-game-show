@@ -1,6 +1,6 @@
 ﻿# music-game-show
 
-This is a web app I wrote for the Japanese Animation Club at UCLA. It is a jeapordy-style music game, where teams of players select a category and difficulty, then try to guess the song that is played. A buzzer system is used to allow teams to guess a song.
+This is a web app my friend and I wrote for the Japanese Animation Club at UCLA. It is a jeapordy-style music game, where teams of players select a category and difficulty, then try to guess the song that is played. A buzzer system is used to allow teams to guess a song.
 
 ##Functionality
 
